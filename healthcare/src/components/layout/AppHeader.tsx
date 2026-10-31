@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/Button";
 
 export function AppHeader() {
   return (
-    <header className="flex h-[72px] items-center gap-3 border-b border-border bg-surface px-8">
+    <header className="flex h-[64px] items-center gap-3 border-b border-border bg-surface px-8">
       <div className="flex size-10 items-center justify-center rounded-full bg-navy text-white">
         <HeartPulse size={20} />
       </div>
-      <div className="leading-tight">
+        <div className="leading-none">
         <h1 className="text-lg font-bold text-navy">Healthcare</h1>
-        <p className="text-xs text-muted">Priorización de urgencias médicas</p>
-      </div>
+        <p className="-mt-1 text-xs text-muted">Priorización de urgencias médicas</p>
+        </div>
       <div className="ml-auto flex items-center gap-3">
         <Button variant="ghost">
           <RefreshCw size={16} />

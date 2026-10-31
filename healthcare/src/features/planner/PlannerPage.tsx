@@ -9,7 +9,7 @@ export function PlannerPage() {
   return (
     <>
       <AppHeader />
-      <main className="mx-auto grid max-w-[1440px] grid-cols-[1fr_400px] items-start gap-6 px-8 py-6">
+      <main className="grid grid-cols-[1fr_345px] items-start gap-4 px-8 py-6">
         <PatientListCard />
         <aside className="flex flex-col gap-4">
           <ScenarioCard label="Inicio" summary="Nadie atendido aún · minuto 0" actionLabel="Configurar inicio" />

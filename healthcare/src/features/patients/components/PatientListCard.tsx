@@ -13,7 +13,7 @@ export function PatientListCard() {
   return (
     <Card className="pb-3">
       <div className="flex items-center justify-between px-5 pt-[22px]">
-        <h2 className="text-lg font-bold text-text">Orden de atención</h2>
+        <h2 className="text-lg font-semibold text-text">Orden de atención</h2>
         <SegmentedControl<Order>
           value={order}
           onChange={setOrder}

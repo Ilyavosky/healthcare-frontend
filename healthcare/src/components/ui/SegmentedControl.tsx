@@ -12,7 +12,7 @@ type Props<T extends string> = {
 
 export function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
   return (
-    <div className="inline-flex rounded-[10px] bg-bg border border-border p-[3px]" role="tablist">
+    <div className="inline-flex rounded-[10px] bg-[#F1F2F4] p-[3px]" role="tablist">
       {options.map((o) => {
         const active = o.value === value;
         return (
