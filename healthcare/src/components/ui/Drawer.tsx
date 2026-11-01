@@ -20,9 +20,9 @@ export function Drawer({ open, onOpenChange, title, description, children }: Pro
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div>
               <Dialog.Title className="text-xl font-bold text-navy">{title}</Dialog.Title>
-              <Dialog.Description className="text-[13px] text-muted">
-                {description}
-              </Dialog.Description>
+              <Dialog.Description className={description ? "text-[13px] text-muted" : "sr-only"}>
+                {description ?? title}
+                </Dialog.Description>
             </div>
             <Dialog.Close
               aria-label="Cerrar"
