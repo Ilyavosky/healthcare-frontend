@@ -26,6 +26,10 @@ export function AppHeader() {
           <Plus size={16} />
           Agregar pacientes
         </Button>
+        <Button onClick={() => openAdd("individual")}>
+          <Plus size={16} />
+          Agregar doctores
+        </Button>
       </div>
     </header>
   );

@@ -8,4 +8,10 @@ export type Patient = {
   duracion: number;
 };
 
+export type PlannedPatient = Patient & {
+  inicia?: number;
+  sobreLimite?: number;
+  penalizacion?: number;
+};
+
 export type NewPatient = Omit<Patient, "id">;

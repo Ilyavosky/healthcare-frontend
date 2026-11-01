@@ -4,6 +4,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useUi, type AddTab } from "@/features/planner/ui-store";
 import { AddPatientForm } from "./AddPatientForm";
+import { ExcelImport } from "@/features/import/components/ExcelImport";
 
 export function AddPatientDrawer() {
   const tab = useUi((s) => s.addDrawer);
@@ -31,10 +32,9 @@ export function AddPatientDrawer() {
         </div>
 
         {tab === "excel" ? (
-          <p className="px-6 text-sm text-muted">
-          </p>
+        <ExcelImport onDone={closeAdd} />
         ) : (
-          <AddPatientForm key="form" onDone={closeAdd} />
+        <AddPatientForm key="form" onDone={closeAdd} />
         )}
       </div>
     </Drawer>
