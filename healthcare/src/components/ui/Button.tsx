@@ -9,9 +9,10 @@ const variants: Record<Variant, string> = {
   ghost: "text-muted hover:text-navy",
   block: "bg-navy text-white hover:bg-navy/90 w-full",
 };
+
 const sizes: Record<Size, string> = {
-  md: "px-[18px] py-[9px] text-sm rounded-[10px] text-semibold",
-  sm: "px-3.5 py-[7px] text-sm rounded-lg text-semibold",
+  md: "px-[18px] py-[12px] text-sm leading-none rounded-[10px]",
+  sm: "px-3.5 py-[9px] text-sm leading-none rounded-lg",
 };
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -23,7 +24,7 @@ export function Button({ variant = "primary", size = "md", className, ...props }
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 font-semibold leading-nonetransition-colors cursor-pointer",
+        "inline-flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer",
         variants[variant],
         sizes[size],
         className,

@@ -8,11 +8,18 @@ type Props<T extends string> = {
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
+  fullWidth?: boolean;
 };
 
-export function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
+export function SegmentedControl<T extends string>({ options, value, onChange, fullWidth }: Props<T>) {
   return (
-    <div className="inline-flex rounded-[10px] bg-[#F1F2F4] p-[3px]" role="tablist">
+    <div
+      className={cn(
+        fullWidth ? "flex w-full" : "inline-flex",
+        "rounded-[10px] bg-[#F1F2F4] p-[3px]",
+      )}
+      role="tablist"
+    >
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -22,7 +29,9 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             aria-selected={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "rounded-lg px-4 py-[7px] text-xs font-semibold transition-colors cursor-pointer",
+              "rounded-lg px-4 py-[8px]",
+              fullWidth && "flex-1",
+              "text-[13px] font-semibold transition-colors cursor-pointer",
               active
                 ? "bg-surface text-navy shadow-[0_1px_2px_rgba(30,58,95,0.12)]"
                 : "text-muted hover:text-navy",
