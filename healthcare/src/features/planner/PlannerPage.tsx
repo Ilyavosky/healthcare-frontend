@@ -1,5 +1,4 @@
 import { AppHeader } from "@/components/layout/AppHeader";
-import { Button } from "@/components/ui/Button";
 import { PenaltySummary } from "@/features/analysis/components/PenaltySummary";
 import { StatTile } from "@/features/analysis/components/StatTile";
 import { AddPatientDrawer } from "@/features/patients/components/AddPatientDrawer";
@@ -9,6 +8,8 @@ import { GoalDrawer } from "@/features/scenario/components/GoalDrawer";
 import { StartCard } from "@/features/scenario/components/StartCard";
 import { StartDrawer } from "@/features/scenario/components/StartDrawer";
 import { DoctorsDrawer } from "@/features/doctors/components/DoctorsDrawer";
+import { AnalysisModal } from "@/features/analysis/components/AnalysisModal";
+import { WhyButton } from "@/features/analysis/components/WhyButton";
 
 export function PlannerPage() {
   return (
@@ -24,15 +25,14 @@ export function PlannerPage() {
             <StatTile label="Fin del turno" value="—" />
             <StatTile label="Con retraso" value="—" />
           </div>
-          <Button variant="block" className="py-[15px]">
-            ¿Por qué este orden es el mejor?
-          </Button>
+          <WhyButton />
         </aside>
       </main>
-            <AddPatientDrawer />
-            <StartDrawer />
-            <GoalDrawer />
-            <DoctorsDrawer />
+      <AddPatientDrawer />
+      <StartDrawer />
+      <GoalDrawer />
+      <DoctorsDrawer />
+      <AnalysisModal />
     </>
   );
 }
