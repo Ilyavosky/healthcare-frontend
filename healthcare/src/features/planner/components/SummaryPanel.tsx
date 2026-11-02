@@ -19,6 +19,8 @@ export function SummaryPanel() {
   else if (plan.soloGravedad) nota = "Escenario muy grande para resolverlo a tiempo: se muestra el orden por gravedad.";
   else if (plan.modo === "gravedad")
     nota = plan.exceso ? `Con orden por gravedad: ${puntos(plan.exceso)} más que el orden óptimo.` : "Con orden por gravedad: igual que el orden óptimo.";
+  else if (plan.anytime)
+    nota = `A* no terminó a tiempo: agenda completada desde el mejor nodo. El óptimo está entre ${fmt(plan.anytime.lowerBound)} y ${fmt(plan.anytime.cost)}.`
   else if (plan.aproximado !== null)
     nota = `Mejor orden encontrado con A* ponderado (ε = ${plan.aproximado}): como mucho ${Math.round((plan.aproximado - 1) * 100)} % sobre el óptimo.`;
   else if (plan.hayPacientes)

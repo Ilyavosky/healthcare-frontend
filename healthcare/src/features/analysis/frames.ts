@@ -2,7 +2,7 @@ import type { Patient } from "@/features/patients/types";
 import type { AlgorithmResultOut } from "@/lib/api/types";
 import type { Nivel } from "@/lib/triage";
 
-export type FrameStatus = "expanded" | "open" | "path";
+export type FrameStatus = "expanded" | "open" | "path" | "completado";
 
 export type FrameNode = {
   id: number;
@@ -39,9 +39,10 @@ export type Frames = {
   trazados: number;
   completa: boolean;
   profundidad: number;
+  nodos: Map<number, Nodo>;
 };
 
-type Nodo = Omit<FrameNode, "status" | "current">;
+export type Nodo = Omit<FrameNode, "status" | "current">;
 
 type Evento = { expanded: number; generated: number[] };
 
@@ -160,9 +161,74 @@ export function construirFotogramas(
     cota: peso > 1 ? Math.ceil(total / peso) : total,
     ruta: result.steps.map((s) => s.patient),
     cierre: result.leftOut.map((s) => s.patient),
-    expandidos: result.expanded ?? expanded.size,
+    expandidos: result.expanded ?? result.limitAttempts[0]?.expanded ?? expanded.size,
     trazados: events.length,
     completa: goal >= 0,
     profundidad: Math.max(1, profundidad),
+    nodos,
+  };
+}
+
+export type RutaCompletada = {
+  frame: Frame;
+  profundidad: number;
+  buscados: string[];
+  completados: string[];
+  cierre: string[];
+};
+
+export function construirRutaCompletada(result: AlgorithmResultOut, patients: Patient[], nodos: Map<number, Nodo>): RutaCompletada | null {
+  const anytime = result.anytime;
+  if (!anytime) return null;
+  const nivelDe = new Map(patients.map((p) => [p.id, p.nivel]));
+
+  const cadena: Nodo[] = [];
+  for (let id = anytime.nodeId; id >= 0 && nodos.has(id); id = nodos.get(id)!.parent) cadena.unshift(nodos.get(id)!);
+  const trazada = cadena.length === anytime.searchSteps + 1;
+  const hDe = (depth: number) => (trazada ? cadena[depth].h : NaN);
+
+  const lista: FrameNode[] = [];
+  const raiz = result.trace[0];
+  lista.push({ id: 0, parent: -1, label: "Ø", depth: 0, g: 0, h: raiz ? raiz.h : NaN, f: raiz ? raiz.f : NaN, cost: 0, status: "path", current: false });
+  let g = 0;
+  anytime.steps.forEach((step, i) => {
+    g += step.penalty;
+    const buscado = i < anytime.searchSteps;
+    const h = buscado ? hDe(i + 1) : NaN;
+    lista.push({
+      id: i + 1,
+      parent: i,
+      label: step.patient,
+      nivel: nivelDe.get(step.patient),
+      depth: i + 1,
+      g,
+      h,
+      f: g + (Number.isNaN(h) ? 0 : h),
+      cost: step.penalty,
+      status: buscado ? "path" : "completado",
+      current: false,
+    });
+  });
+  const cierre = anytime.leftOut.reduce((sum, step) => sum + step.penalty, 0);
+  const ultimo = anytime.steps.length;
+  lista.push({
+    id: ultimo + 1,
+    parent: ultimo,
+    label: META,
+    depth: ultimo + 1,
+    g: g + cierre,
+    h: NaN,
+    f: g + cierre,
+    cost: cierre,
+    status: anytime.searchSteps >= ultimo ? "path" : "completado",
+    current: false,
+  });
+
+  return {
+    frame: { nodes: lista, expandidos: 0, frontera: 0, generados: lista.length, minF: anytime.cost, done: true },
+    profundidad: ultimo + 1,
+    buscados: anytime.steps.slice(0, anytime.searchSteps).map((s) => s.patient),
+    completados: anytime.steps.slice(anytime.searchSteps).map((s) => s.patient),
+    cierre: anytime.leftOut.map((s) => s.patient),
   };
 }

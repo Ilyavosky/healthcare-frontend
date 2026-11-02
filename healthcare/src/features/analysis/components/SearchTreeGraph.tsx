@@ -12,6 +12,7 @@ const NAVY = "#1e3a5f";
 const BROWN = "#7c4a1e"; // costo del paso
 const RED = "#c81e1e"; // h
 const GRAY = "#8a93a1";
+const AMBER = "#b7791f";
 
 const halo = { paintOrder: "stroke", stroke: "#fff", strokeWidth: 4, strokeLinejoin: "round" } as const;
 
@@ -53,7 +54,7 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
     <svg
       viewBox={`0 0 ${width} ${height}`}
       className="h-auto w-full"
-      style={{ minWidth: 760, "--dur": `${durationMs}ms` } as React.CSSProperties}
+      style={{ minWidth: Math.max(760, width), "--dur": `${durationMs}ms` } as React.CSSProperties}
       role="img"
       aria-label="Grafo de búsqueda del algoritmo"
     >
@@ -66,6 +67,7 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
           if (!a || !b) return null;
           const d = `M ${a.x} ${a.y} L ${b.x} ${b.y}`;
           const path = n.status === "path";
+          const completado = n.status === "completado";
           return (
             <path
               key={`e-${n.id}`}
@@ -73,9 +75,9 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
               d={d}
               style={{ d: `path("${d}")` } as React.CSSProperties}
               fill="none"
-              stroke={path ? NAVY : GRAY}
-              strokeWidth={path ? 4 : 1.8}
-              strokeDasharray={n.status === "open" ? "5 5" : undefined}
+              stroke={path ? NAVY : completado ? AMBER : GRAY}
+              strokeWidth={path || completado ? 4 : 1.8}
+              strokeDasharray={n.status === "open" ? "5 5" : completado ? "9 6" : undefined}
             />
           );
         })}
@@ -107,18 +109,20 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
         if (!p) return null;
         const color = n.nivel ? NIVELES[n.nivel].hex : "#fff";
         const abierto = n.status === "open";
+        const completado = n.status === "completado";
         const raiz = n.parent < 0 || !n.nivel;
         const oscuro = n.nivel === 3;
         return (
           <g key={`n-${n.id}`} className="graph-node" style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>
-            <title>{`${n.label} · g = ${fmt(n.g)} · h = ${fmt(n.h)} · f = ${fmt(n.f)}`}</title>
+            <title>{Number.isNaN(n.h) ? `${n.label} · g = ${fmt(n.g)}` : `${n.label} · g = ${fmt(n.g)} · h = ${fmt(n.h)} · f = ${fmt(n.f)}`}</title>
             {n.current && <circle r={R + 7} fill="none" stroke="#2f7bd6" strokeWidth={2.5} opacity={0.55} />}
             <circle
               r={R}
               fill={raiz ? "#fff" : abierto ? "#fff" : color}
-              stroke={raiz ? NAVY : abierto ? color : "none"}
+              fillOpacity={completado && !raiz ? 0.55 : 1}
+              stroke={completado ? AMBER : raiz ? NAVY : abierto ? color : "none"}
               strokeWidth={2.5}
-              strokeDasharray={abierto ? "4 3" : undefined}
+              strokeDasharray={abierto ? "4 3" : completado ? "5 3" : undefined}
             />
             <text
               y={4.5}
@@ -130,12 +134,14 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
               {n.label}
             </text>
             {/* h: lo que se estima que falta */}
-            <text x={R * 0.8} y={-R * 0.9} fontSize={12} fontWeight={700} fill={RED} style={halo}>
-              {fmt(n.h)}
-            </text>
+            {!Number.isNaN(n.h) && (
+              <text x={R * 0.8} y={-R * 0.9} fontSize={12} fontWeight={700} fill={RED} style={halo}>
+                {fmt(n.h)}
+              </text>
+            )}
           </g>
         );
       })}
     </svg>
   );
-}
+}

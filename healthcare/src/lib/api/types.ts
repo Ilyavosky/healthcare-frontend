@@ -74,6 +74,15 @@ export type AttemptOut = {
 
 export type AlgorithmStatus = "optimal" | "approximate" | "limit_reached";
 
+export type AnytimeOut = {
+  nodeId: number;
+  searchSteps: number;
+  cost: number;
+  lowerBound: number;
+  steps: StepOut[];
+  leftOut: StepOut[];
+};
+
 export type AlgorithmResultOut = {
   status: AlgorithmStatus;
   weight: number;
@@ -87,6 +96,7 @@ export type AlgorithmResultOut = {
   leftOut: StepOut[];
   trace: TraceRowOut[];
   limitAttempts: AttemptOut[];
+  anytime: AnytimeOut | null;
 };
 
 export type BaselineOut = {
@@ -104,8 +114,11 @@ export type AlertOut = {
   minutes: number;
 };
 
+export type ReferenceKind = "optimal" | "approximate" | "anytime" | "baseline";
+
 export type SolveResponse = {
   reference: AlgorithmName | "baseline";
+  referenceKind: ReferenceKind;
   cost: number;
   doctors: number;
   results: Partial<Record<AlgorithmName, AlgorithmResultOut>>;

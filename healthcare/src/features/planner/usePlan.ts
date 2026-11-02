@@ -17,6 +17,7 @@ export function usePlan() {
   const dataKey = useSolve((s) => s.key);
   const response = useSolve((s) => s.data);
   const solveError = useSolve((s) => s.error);
+  const comparacion = useSolve((s) => s.comparacion);
 
   const key = useMemo(() => requestKey(request), [request]);
   const data = response && dataKey === key ? response : null;
@@ -28,6 +29,7 @@ export function usePlan() {
   );
 
   const referencia = data && data.reference !== "baseline" ? data.results[data.reference] : undefined;
+  const kind = data?.referenceKind ?? null;
 
   return {
     ...plan,
@@ -36,10 +38,13 @@ export function usePlan() {
     error,
     hayPacientes: patients.length > 0,
     calculando: plan.pendientes > 0 && !data && !error,
-    exacto: referencia?.status === "optimal",
-    aproximado: referencia?.status === "approximate" ? referencia.weight : null,
-    soloGravedad: data?.reference === "baseline",
-    ahorro: data && modo === "optimo" && data.reference !== "baseline" ? data.baseline.cost - data.cost : null,
+    exacto: kind === "optimal",
+    aproximado: kind === "approximate" && referencia ? referencia.weight : null,
+    anytime: kind === "anytime" && referencia?.anytime ? referencia.anytime : null,
+    soloGravedad: kind === "baseline",
+    ahorro: data && modo === "optimo" && kind !== "baseline" ? data.baseline.cost - data.cost : null,
     exceso: data && modo === "gravedad" ? data.baseline.cost - data.cost : null,
+    comparacion: data && comparacion?.key === key ? comparacion : null,
+    astar: data?.results.astar,
   };
 }

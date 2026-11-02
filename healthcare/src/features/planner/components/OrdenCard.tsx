@@ -7,7 +7,7 @@ import { EmptyPatients } from "@/features/patients/components/EmptyPatients";
 import { PatientTable } from "@/features/patients/components/PatientTable";
 import { usePatients } from "@/features/patients/store";
 import { cn } from "@/lib/cn";
-import { describeReference } from "../labels";
+import { describeComparacion, describeReference } from "../labels";
 import { useUi, type OrdenModo } from "../ui-store";
 import { usePlan } from "../usePlan";
 
@@ -26,12 +26,23 @@ function EstadoBusqueda() {
     texto = plan.modo === "optimo" ? describeReference(plan.data) : "Orden por gravedad: nivel de triage y luego mayor espera.";
   if (!texto) return null;
 
+  const comparando = plan.comparacion?.status === "loading";
+  const comparacion = plan.comparacion ? describeComparacion(plan.comparacion.ucs, plan.astar) : null;
+
   return (
-    <p className={cn("flex items-center gap-1.5 px-5 pt-2 text-xs", tono)} role={plan.error ? "alert" : "status"}>
-      {plan.calculando && <LoaderCircle size={13} className="animate-spin" />}
-      {plan.error && <AlertCircle size={13} />}
-      {texto}
-    </p>
+    <div className="space-y-0.5 px-5 pt-2 text-xs">
+      <p className={cn("flex items-center gap-1.5", tono)} role={plan.error ? "alert" : "status"}>
+        {plan.calculando && <LoaderCircle size={13} className="animate-spin" />}
+        {plan.error && <AlertCircle size={13} />}
+        {texto}
+      </p>
+      {plan.modo === "optimo" && plan.data && (comparando || comparacion) && (
+        <p className="flex items-center gap-1.5 text-subtle">
+          {comparando && <LoaderCircle size={12} className="animate-spin" />}
+          {comparando ? "Comparando con Costo uniforme…" : comparacion}
+        </p>
+      )}
+    </div>
   );
 }
 

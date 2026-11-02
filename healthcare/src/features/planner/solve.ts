@@ -56,13 +56,14 @@ export function buildSolveRequest(input: ScenarioInput): SolveRequest | null {
     },
     doctors,
     goal: toGoal(goal, pending),
-    algorithms: ["ucs", "astar"],
+    algorithms: ["astar"],
   };
 }
 
 export function stepsFor(response: SolveResponse, modo: OrdenModo): StepOut[] {
   if (modo === "optimo" && response.reference !== "baseline") {
     const result = response.results[response.reference];
+    if (response.referenceKind === "anytime" && result?.anytime) return [...result.anytime.steps, ...result.anytime.leftOut];
     if (result && result.steps.length + result.leftOut.length > 0) return [...result.steps, ...result.leftOut];
   }
   return [...response.baseline.steps, ...response.baseline.leftOut];
