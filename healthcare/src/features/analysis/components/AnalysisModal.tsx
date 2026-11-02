@@ -202,15 +202,15 @@ function Explicacion({ result, n }: { result: AlgorithmResultOut; n: number }) {
     <div className="rounded-xl border-l-4 border-amber bg-amberbg px-5 py-4 text-[13px] text-text">
       <p className="text-[15px] font-bold tracking-tight text-amber">A* no alcanzó la meta en el tiempo límite</p>
       <p className="mt-1.5 leading-relaxed">
-        Con {n} pacientes hay {factorial(n)} órdenes de atención posibles. A* garantiza el óptimo, pero el número de estados crece de forma
-        exponencial con los pacientes: resuelve en milisegundos salas de 12 pacientes y en unos 2 segundos una de 16, pero aquí expandió{" "}
-        {fmt(intento?.expanded ?? 0)} nodos en {segundos(intento?.ms ?? 0)} sin llegar a la meta
+        Con {n} pacientes hay {factorial(n)} órdenes de atención posibles. A* garantiza el óptimo y descarta la mayoría de ellos, pero los
+        estados que debe revisar crecen de forma exponencial con los pacientes: una sala de unos 16 se resuelve en menos de un segundo y una de
+        unos 20 ya puede tardar varios. Aquí expandió {fmt(intento?.expanded ?? 0)} nodos en {segundos(intento?.ms ?? 0)} sin llegar a la meta
         {result.limitAttempts.length > 1 && `, y tampoco terminó con A* ponderado (ε hasta ${result.limitAttempts[result.limitAttempts.length - 1].weight})`}.
       </p>
       {cota !== undefined && (
         <p className="mt-1.5 text-xs text-muted">
           Lo que sí se sabe: ninguna agenda puede costar menos de {fmt(cota)}. Es la menor g + h que quedó en la frontera al cortar la búsqueda
-          (la mejor entre A* y A* ponderado); como h es admisible, nunca sobrestima lo que falta.
+          (se toma la mayor entre A* y A* ponderado); como h es admisible, nunca sobrestima lo que falta.
         </p>
       )}
     </div>
@@ -223,8 +223,8 @@ function FinalParcial({ result }: { result: AlgorithmResultOut }) {
     <div role="status" className="rounded-xl border-l-4 border-blue bg-bluebg px-5 py-4 text-[13px]">
       <p className="text-[15px] font-bold tracking-tight text-navy">Búsqueda detenida por tiempo</p>
       <p className="mt-1.5 text-xs text-muted">
-        Así quedó A* (ε = 1) al cortarse: se muestran las {RUTAS_VISIBLES} rutas más prometedoras de la frontera, y su menor f también es una cota
-        inferior del óptimo{cota !== undefined && ` (la mejor cota encontrada es ${fmt(cota)})`}. La pestaña «Ruta completada» toma el nodo más prometedor y
+        Así quedó A* (ε = 1) al cortarse: se muestran las {RUTAS_VISIBLES} rutas más prometedoras de la frontera. Su menor f es una cota inferior
+        del óptimo{cota !== undefined && ` (la mejor cota encontrada es ${fmt(cota)})`}. La pestaña «Ruta completada» toma el nodo más prometedor y
         termina la agenda.
       </p>
     </div>
@@ -254,7 +254,7 @@ function RutaCompletadaVista({ ruta, result, response }: { ruta: RutaCompletada;
         </p>
         {ruta.cierre.length > 0 && <p className="mt-1 break-words text-xs text-muted">Fuera de la meta, en orden de triage: {ruta.cierre.join(", ")}</p>}
         <p className="mt-2 text-xs text-muted">
-          Los primeros {ruta.buscados.length} pasos los eligió A*; los siguientes {ruta.completados.length} se completaron por gravedad (nivel y
+          Los primeros {ruta.buscados.length} pasos los eligió {anytime.nodeId >= 0 ? "A*" : "A* ponderado"}; los siguientes {ruta.completados.length} se completaron por gravedad (nivel y
           luego mayor espera). El óptimo está entre {fmt(anytime.lowerBound)} y {fmt(anytime.cost)}
           {brecha !== null && `: esta agenda está a lo más ${brecha} % por encima`}.{" "}
           {usada

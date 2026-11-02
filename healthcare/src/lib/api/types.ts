@@ -50,6 +50,7 @@ export type TraceChildOut = {
   g: number;
   h: number;
   f: number;
+  replaces?: number | null;
 };
 
 export type TraceRowOut = {

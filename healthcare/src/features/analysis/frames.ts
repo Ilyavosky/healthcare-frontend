@@ -44,7 +44,7 @@ export type Frames = {
 
 export type Nodo = Omit<FrameNode, "status" | "current">;
 
-type Evento = { expanded: number; generated: number[] };
+type Evento = { expanded: number; generated: number[]; replaced: number[] };
 
 export const META = "META";
 
@@ -85,7 +85,9 @@ export function construirFotogramas(
     const padre = nodos.get(row.id);
     if (!padre) break;
     const generated: number[] = [];
+    const replaced: number[] = [];
     for (const child of row.children) {
+      if (child.replaces != null) replaced.push(child.replaces);
       const depth = padre.depth + 1;
       profundidad = Math.max(profundidad, depth);
       nodos.set(child.id, {
@@ -101,7 +103,7 @@ export function construirFotogramas(
       });
       generated.push(child.id);
     }
-    events.push({ expanded: row.id, generated });
+    events.push({ expanded: row.id, generated, replaced });
   }
 
   const ultima = trace[trace.length - 1];
@@ -147,6 +149,7 @@ export function construirFotogramas(
     open.delete(e.expanded);
     expanded.add(e.expanded);
     for (const id of e.generated) open.add(id);
+    for (const id of e.replaced) open.delete(id);
     if (i % stride === 0 && i < events.length - 1) frames.push(fotograma(e.expanded, false));
   });
   frames.push(fotograma(-1, true));
