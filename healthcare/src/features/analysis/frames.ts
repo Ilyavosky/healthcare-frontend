@@ -1,4 +1,5 @@
-import type { SearchTrace } from "@/features/planner/astar";
+import type { Patient } from "@/features/patients/types";
+import type { AlgorithmResultOut } from "@/lib/api/types";
 import type { Nivel } from "@/lib/triage";
 
 export type FrameStatus = "expanded" | "open" | "path";
@@ -30,86 +31,138 @@ export type Frames = {
   frames: Frame[];
   total: number;
   exacto: boolean;
+  peso: number;
   cota: number;
   ruta: string[];
+  cierre: string[];
+  expandidos: number;
+  trazados: number;
+  completa: boolean;
+  profundidad: number;
 };
 
-export function construirFotogramas(trace: SearchTrace, rutasVisibles = 5, maxFotogramas = 600): Frames {
-  const { nodes, events, patients, goal, exacto, cota } = trace;
-  const stride = Math.max(1, Math.ceil(events.length / maxFotogramas));
+type Nodo = Omit<FrameNode, "status" | "current">;
 
-  const open = new Set<number>([0]);
-  const expanded = new Set<number>();
-  const latest = new Map<bigint, number>();
-  latest.set(nodes[0].mask, 0);
+type Evento = { expanded: number; generated: number[] };
 
+export const META = "META";
+
+function mejores(open: Set<number>, nodos: Map<number, Nodo>, k: number): number[] {
+  const top: number[] = [];
+  const antes = (a: number, b: number) => {
+    const x = nodos.get(a)!;
+    const y = nodos.get(b)!;
+    return x.f !== y.f ? x.f < y.f : x.depth !== y.depth ? x.depth > y.depth : a < b;
+  };
+  for (const id of open) {
+    if (top.length < k) {
+      top.push(id);
+      top.sort((a, b) => (antes(a, b) ? -1 : 1));
+    } else if (antes(id, top[k - 1])) {
+      top[k - 1] = id;
+      top.sort((a, b) => (antes(a, b) ? -1 : 1));
+    }
+  }
+  return top;
+}
+
+export function construirFotogramas(
+  result: AlgorithmResultOut,
+  patients: Patient[],
+  rutasVisibles = 5,
+  maxFotogramas = 600,
+): Frames {
+  const nivelDe = new Map(patients.map((p) => [p.id, p.nivel]));
+  const trace = result.trace;
+  const raiz = trace[0];
+  const nodos = new Map<number, Nodo>();
+  nodos.set(raiz.id, { id: raiz.id, parent: -1, label: "Ø", depth: 0, g: raiz.g, h: raiz.h, f: raiz.f, cost: 0 });
+
+  const events: Evento[] = [];
+  let profundidad = 0;
+  for (const row of trace) {
+    const padre = nodos.get(row.id);
+    if (!padre) break;
+    const generated: number[] = [];
+    for (const child of row.children) {
+      const depth = padre.depth + 1;
+      profundidad = Math.max(profundidad, depth);
+      nodos.set(child.id, {
+        id: child.id,
+        parent: row.id,
+        label: child.patient ?? META,
+        nivel: child.patient ? nivelDe.get(child.patient) : undefined,
+        depth,
+        g: child.g,
+        h: child.h,
+        f: child.f,
+        cost: child.g - row.g,
+      });
+      generated.push(child.id);
+    }
+    events.push({ expanded: row.id, generated });
+  }
+
+  const ultima = trace[trace.length - 1];
+  const goal = ultima.isGoal && nodos.has(ultima.id) ? ultima.id : -1;
   const meta = new Set<number>();
-  for (let id = goal; id >= 0; id = nodes[id].parent) meta.add(id);
+  for (let id = goal; id >= 0; id = nodos.get(id)?.parent ?? -1) meta.add(id);
 
-  const f = (id: number) => nodes[id].g + nodes[id].h;
+  const stride = Math.max(1, Math.ceil(events.length / maxFotogramas));
+  const open = new Set<number>([raiz.id]);
+  const expanded = new Set<number>();
 
   function fotograma(current: number, done: boolean): Frame {
-    const semillas = [...open].sort((a, b) => f(a) - f(b) || nodes[b].depth - nodes[a].depth).slice(0, rutasVisibles);
+    const semillas = mejores(open, nodos, rutasVisibles);
     if (current >= 0) semillas.push(current);
-    if (done) semillas.push(goal);
+    if (done && goal >= 0) semillas.push(goal);
 
     const ids = new Set<number>();
-    for (const s of semillas) for (let id = s; id >= 0; id = nodes[id].parent) ids.add(id);
+    for (const s of semillas) for (let id = s; id >= 0 && !ids.has(id); id = nodos.get(id)?.parent ?? -1) ids.add(id);
 
     const lista: FrameNode[] = [...ids]
-      .sort((a, b) => nodes[a].depth - nodes[b].depth || a - b)
-      .map((id) => {
-        const n = nodes[id];
-        const p = n.patient >= 0 ? patients[n.patient] : undefined;
-        return {
-          id,
-          parent: n.parent,
-          label: p ? p.id : "Ø",
-          nivel: p?.nivel,
-          depth: n.depth,
-          g: n.g,
-          h: n.h,
-          f: n.g + n.h,
-          cost: n.cost,
-          status: done && meta.has(id) ? "path" : expanded.has(id) ? "expanded" : "open",
-          current: id === current && !done,
-        };
-      });
+      .map((id) => nodos.get(id)!)
+      .sort((a, b) => a.depth - b.depth || a.id - b.id)
+      .map((n) => ({
+        ...n,
+        status: done && meta.has(n.id) ? "path" : expanded.has(n.id) ? "expanded" : "open",
+        current: n.id === current && !done,
+      }));
 
     let minF = Infinity;
-    for (const id of open) minF = Math.min(minF, f(id));
+    for (const id of open) minF = Math.min(minF, nodos.get(id)!.f);
     return {
       nodes: lista,
       expandidos: expanded.size,
       frontera: open.size,
-      generados: nodes.length,
-      minF: done ? nodes[goal].g : minF,
+      generados: nodos.size,
+      minF: done ? result.cost ?? minF : minF,
       done,
     };
   }
 
   const frames: Frame[] = [fotograma(-1, false)];
-
   events.forEach((e, i) => {
     open.delete(e.expanded);
     expanded.add(e.expanded);
-    for (const id of e.generated) {
-      const old = latest.get(nodes[id].mask);
-      if (old !== undefined) open.delete(old);
-      latest.set(nodes[id].mask, id);
-      open.add(id);
-    }
+    for (const id of e.generated) open.add(id);
     if (i % stride === 0 && i < events.length - 1) frames.push(fotograma(e.expanded, false));
   });
-
-  open.delete(goal);
-  expanded.add(goal);
   frames.push(fotograma(-1, true));
 
-  const ruta = [...meta]
-    .reverse()
-    .filter((id) => nodes[id].patient >= 0)
-    .map((id) => patients[nodes[id].patient].id);
-
-  return { frames, total: nodes[goal].g, exacto, cota, ruta };
+  const peso = result.weight;
+  const total = result.cost ?? 0;
+  return {
+    frames,
+    total,
+    exacto: result.status === "optimal",
+    peso,
+    cota: peso > 1 ? Math.ceil(total / peso) : total,
+    ruta: result.steps.map((s) => s.patient),
+    cierre: result.leftOut.map((s) => s.patient),
+    expandidos: result.expanded ?? expanded.size,
+    trazados: events.length,
+    completa: goal >= 0,
+    profundidad: Math.max(1, profundidad),
+  };
 }

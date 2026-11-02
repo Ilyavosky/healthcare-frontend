@@ -1,12 +1,39 @@
 "use client";
 
+import { AlertCircle, LoaderCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { EmptyPatients } from "@/features/patients/components/EmptyPatients";
 import { PatientTable } from "@/features/patients/components/PatientTable";
 import { usePatients } from "@/features/patients/store";
+import { cn } from "@/lib/cn";
+import { describeReference } from "../labels";
 import { useUi, type OrdenModo } from "../ui-store";
 import { usePlan } from "../usePlan";
+
+function EstadoBusqueda() {
+  const plan = usePlan();
+  if (!plan.hayPacientes) return null;
+
+  let texto: string | null = null;
+  let tono = "text-muted";
+  if (plan.pendientes === 0) texto = "Todos los pacientes ya fueron atendidos.";
+  else if (plan.error) {
+    texto = plan.error.message;
+    tono = "text-n1";
+  } else if (plan.calculando) texto = "Calculando el mejor orden…";
+  else if (plan.data)
+    texto = plan.modo === "optimo" ? describeReference(plan.data) : "Orden por gravedad: nivel de triage y luego mayor espera.";
+  if (!texto) return null;
+
+  return (
+    <p className={cn("flex items-center gap-1.5 px-5 pt-2 text-xs", tono)} role={plan.error ? "alert" : "status"}>
+      {plan.calculando && <LoaderCircle size={13} className="animate-spin" />}
+      {plan.error && <AlertCircle size={13} />}
+      {texto}
+    </p>
+  );
+}
 
 export function OrdenCard() {
   const total = usePatients((s) => s.patients.length);
@@ -24,7 +51,6 @@ export function OrdenCard() {
               {total} {total === 1 ? "paciente" : "pacientes"}
             </span>
           )}
-          {plan.calculando && <span className="text-xs text-muted">Calculando orden óptimo…</span>}
         </div>
         <SegmentedControl<OrdenModo>
           value={modo}
@@ -35,7 +61,14 @@ export function OrdenCard() {
           ]}
         />
       </div>
-      {total === 0 ? <EmptyPatients /> : <PatientTable filas={plan.filas} />}
+      <EstadoBusqueda />
+      {total === 0 ? (
+        <EmptyPatients />
+      ) : (
+        <div className={cn("transition-opacity", plan.calculando && "opacity-60")}>
+          <PatientTable filas={plan.filas} />
+        </div>
+      )}
     </Card>
   );
 }

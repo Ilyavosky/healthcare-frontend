@@ -4,18 +4,20 @@ import { useLayoutEffect, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { fmt } from "@/lib/format";
 import { NIVELES } from "@/lib/triage";
-import type { FilaTabla } from "../types";
+import type { Estado, FilaTabla } from "../types";
 import { LevelBadge } from "./LevelBadge";
 
-const COLS = "grid grid-cols-[40px_minmax(140px,1fr)_100px_90px_100px_100px_118px_118px_130px] items-center gap-3";
+const COLS =
+  "grid grid-cols-[40px_minmax(140px,1fr)_100px_90px_100px_90px_100px_118px_118px_140px] items-center gap-3";
 
 const dash = <span className="text-subtle">—</span>;
 
-const ESTADO = {
+const ESTADO: Record<Exclude<Estado, "sin_plan">, { texto: string; clase: string }> = {
   atendido: { texto: "Atendido", clase: "bg-bg text-muted" },
   a_tiempo: { texto: "A tiempo", clase: "bg-[#e6f4ee] text-ok" },
   retraso: { texto: "Con retraso", clase: "bg-amberbg text-amber" },
-} as const;
+  fuera_meta: { texto: "Fuera de la meta", clase: "bg-bg text-muted" },
+};
 
 const DURACION_MS = 550;
 
@@ -46,20 +48,21 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
 
   return (
     <div className="overflow-x-auto px-5 pb-2 pt-4">
-      <div className="min-w-[1000px]">
+      <div className="min-w-[1100px]">
         <div className={cn(COLS, "px-3 pb-2 text-xs text-muted")}>
           <span>#</span>
           <span>Paciente</span>
           <span>Nivel</span>
           <span>Espera</span>
           <span>Consulta</span>
+          <span>Médico</span>
           <span>Inicia en</span>
           <span>Sobre límite</span>
           <span>Penalización</span>
           <span>Estado</span>
         </div>
         <ul className="space-y-2">
-          {filas.map(({ patient: p, inicia, sobre, penal, estado }, i) => (
+          {filas.map(({ patient: p, inicia, sobre, penal, medico, estado }, i) => (
             <li
               key={p.id}
               ref={(el) => {
@@ -80,6 +83,7 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
               </span>
               <span className="text-[13px] text-muted">{p.espera} min</span>
               <span className="text-[13px] text-muted">{p.duracion} min</span>
+              <span className="text-[13px] text-text tabular-nums">{medico === null ? dash : medico}</span>
               <span className="text-[13px] text-text tabular-nums">{inicia === null ? dash : `Min ${fmt(inicia)}`}</span>
               <span className={cn("text-[13px] tabular-nums", sobre ? "text-text" : "text-muted")}>
                 {sobre === null ? dash : `${fmt(sobre)} min`}
@@ -88,9 +92,13 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
                 {penal === null ? dash : fmt(penal)}
               </span>
               <span>
-                <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", ESTADO[estado].clase)}>
-                  {ESTADO[estado].texto}
-                </span>
+                {estado === "sin_plan" ? (
+                  dash
+                ) : (
+                  <span className={cn("whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold", ESTADO[estado].clase)}>
+                    {ESTADO[estado].texto}
+                  </span>
+                )}
               </span>
             </li>
           ))}

@@ -5,25 +5,32 @@ import { StatTile } from "@/features/analysis/components/StatTile";
 import { fmt } from "@/lib/format";
 import { usePlan } from "../usePlan";
 
-/** Penalización total + fin del turno + pacientes con retraso, del orden que se está mostrando. */
+function puntos(n: number) {
+  return `${fmt(n)} ${n === 1 ? "punto" : "puntos"}`;
+}
+
 export function SummaryPanel() {
   const plan = usePlan();
 
   let nota = "Agrega pacientes para calcular el orden óptimo.";
   if (plan.hayPacientes && plan.pendientes === 0) nota = "Todos los pacientes ya fueron atendidos.";
+  else if (plan.error) nota = "No se pudo calcular el orden.";
   else if (plan.calculando) nota = "Calculando el orden óptimo…";
-  else if (plan.pendientes > 0 && plan.modo === "gravedad") nota = "Con orden por gravedad. Cambia a «Orden óptimo» para ver la menor penalización.";
-  else if (plan.pendientes > 0 && !plan.exacto) nota = "Mejor orden encontrado (aproximado): con tantos pacientes no se puede garantizar el óptimo.";
-  else if (plan.pendientes > 0)
-    nota = plan.ahorro && plan.ahorro > 0 ? `Es el mínimo posible: ahorras ${fmt(plan.ahorro)} frente al orden por gravedad.` : "Es el mínimo posible.";
+  else if (plan.soloGravedad) nota = "Escenario muy grande para resolverlo a tiempo: se muestra el orden por gravedad.";
+  else if (plan.modo === "gravedad")
+    nota = plan.exceso ? `Con orden por gravedad: ${puntos(plan.exceso)} más que el orden óptimo.` : "Con orden por gravedad: igual que el orden óptimo.";
+  else if (plan.aproximado !== null)
+    nota = `Mejor orden encontrado con A* ponderado (ε = ${plan.aproximado}): como mucho ${Math.round((plan.aproximado - 1) * 100)} % sobre el óptimo.`;
+  else if (plan.hayPacientes)
+    nota = plan.ahorro ? `Es el mínimo posible: ahorras ${puntos(plan.ahorro)} frente al orden por gravedad.` : "Es el mínimo posible.";
 
-  const hay = plan.pendientes > 0 && !plan.calculando;
+  const hay = plan.pendientes > 0 && plan.data !== null;
 
   return (
     <>
-      <PenaltySummary total={plan.pendientes > 0 ? plan.total : null} nota={nota} />
+      <PenaltySummary total={hay ? plan.total : null} nota={nota} />
       <div className="grid grid-cols-2 gap-3">
-        <StatTile label="Fin del turno" value={hay ? `Min ${fmt(plan.finTurno)}` : "—"} />
+        <StatTile label="Fin del turno" value={hay && plan.finTurno !== null ? `Min ${fmt(plan.finTurno)}` : "—"} />
         <StatTile label="Con retraso" value={hay ? `${plan.conRetraso} de ${plan.pendientes}` : "—"} />
       </div>
     </>

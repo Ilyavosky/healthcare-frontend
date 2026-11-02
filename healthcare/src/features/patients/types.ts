@@ -8,18 +8,15 @@ export type Patient = {
   duracion: number;
 };
 
-export type PlannedPatient = Patient & {
-  inicia?: number;
-  sobreLimite?: number;
-  penalizacion?: number;
-};
-
 export type NewPatient = Omit<Patient, "id">;
+
+export type Estado = "atendido" | "a_tiempo" | "retraso" | "fuera_meta" | "sin_plan";
 
 export type FilaTabla = {
   patient: Patient;
   inicia: number | null;
   sobre: number | null;
   penal: number | null;
-  estado: "atendido" | "a_tiempo" | "retraso";
+  medico: number | null;
+  estado: Estado;
 };

@@ -107,7 +107,7 @@ export function SearchTreeGraph({ frame, niveles, rutasVisibles, durationMs }: P
         if (!p) return null;
         const color = n.nivel ? NIVELES[n.nivel].hex : "#fff";
         const abierto = n.status === "open";
-        const raiz = n.parent < 0;
+        const raiz = n.parent < 0 || !n.nivel;
         const oscuro = n.nivel === 3;
         return (
           <g key={`n-${n.id}`} className="graph-node" style={{ transform: `translate(${p.x}px, ${p.y}px)` }}>

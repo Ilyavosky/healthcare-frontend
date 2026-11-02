@@ -9,10 +9,10 @@ type UiState = {
   closeAdd: () => void;
   startDrawer: boolean;
   setStartDrawer: (open: boolean) => void;
-  goalDrawer: boolean;
-  setGoalDrawer: (open: boolean) => void;
   doctorsDrawer: boolean;
   setDoctorsDrawer: (open: boolean) => void;
+  goalDrawer: boolean;
+  setGoalDrawer: (open: boolean) => void;
   analysisOpen: boolean;
   setAnalysisOpen: (open: boolean) => void;
   orden: OrdenModo;
@@ -25,10 +25,10 @@ export const useUi = create<UiState>((set) => ({
   closeAdd: () => set({ addDrawer: null }),
   startDrawer: false,
   setStartDrawer: (open) => set({ startDrawer: open }),
-  goalDrawer: false,
-  setGoalDrawer: (open) => set({ goalDrawer: open }),
   doctorsDrawer: false,
   setDoctorsDrawer: (open) => set({ doctorsDrawer: open }),
+  goalDrawer: false,
+  setGoalDrawer: (open) => set({ goalDrawer: open }),
   analysisOpen: false,
   setAnalysisOpen: (open) => set({ analysisOpen: open }),
   orden: "optimo",

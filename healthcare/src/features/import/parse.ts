@@ -71,8 +71,8 @@ function validarFilas(matrix: unknown[][]): ParsedRow[] {
     let error: string | undefined;
     if (nombre.length < 2) error = "Falta el nombre.";
     else if (!nivel) error = "Nivel inválido (usa 1 a 5).";
-    else if (Number.isNaN(espera) || espera < 0) error = "Espera inválida (0 o más).";
-    else if (Number.isNaN(duracion) || duracion < 1) error = "Duración inválida (1 o más).";
+    else if (!Number.isInteger(espera) || espera < 0) error = "Espera inválida (entero, 0 o más).";
+    else if (!Number.isInteger(duracion) || duracion < 1) error = "Duración inválida (entero, 1 o más).";
 
     rows.push(
       error || !nivel
