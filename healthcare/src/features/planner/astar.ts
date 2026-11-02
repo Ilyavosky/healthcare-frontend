@@ -165,3 +165,11 @@ export function ejecutarAEstrella(patients: Patient[], t0: number): SearchTrace 
 
   return { patients, nodes, events, goal, exacto: !agotado, cota };
 }
+
+export function ordenDeTrace(trace: SearchTrace): number[] {
+  const orden: number[] = [];
+  for (let id = trace.goal; id >= 0; id = trace.nodes[id].parent) {
+    if (trace.nodes[id].patient >= 0) orden.push(trace.nodes[id].patient);
+  }
+  return orden.reverse();
+}

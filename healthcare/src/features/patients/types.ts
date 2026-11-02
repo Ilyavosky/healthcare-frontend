@@ -15,3 +15,11 @@ export type PlannedPatient = Patient & {
 };
 
 export type NewPatient = Omit<Patient, "id">;
+
+export type FilaTabla = {
+  patient: Patient;
+  inicia: number | null;
+  sobre: number | null;
+  penal: number | null;
+  estado: "atendido" | "a_tiempo" | "retraso";
+};

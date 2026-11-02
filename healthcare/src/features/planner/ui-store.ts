@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 export type AddTab = "individual" | "excel";
+export type OrdenModo = "optimo" | "gravedad";
 
 type UiState = {
   addDrawer: AddTab | null;
@@ -14,6 +15,8 @@ type UiState = {
   setDoctorsDrawer: (open: boolean) => void;
   analysisOpen: boolean;
   setAnalysisOpen: (open: boolean) => void;
+  orden: OrdenModo;
+  setOrden: (orden: OrdenModo) => void;
 };
 
 export const useUi = create<UiState>((set) => ({
@@ -28,4 +31,6 @@ export const useUi = create<UiState>((set) => ({
   setDoctorsDrawer: (open) => set({ doctorsDrawer: open }),
   analysisOpen: false,
   setAnalysisOpen: (open) => set({ analysisOpen: open }),
+  orden: "optimo",
+  setOrden: (orden) => set({ orden }),
 }));

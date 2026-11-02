@@ -1,33 +1,30 @@
 import { AppHeader } from "@/components/layout/AppHeader";
-import { PenaltySummary } from "@/features/analysis/components/PenaltySummary";
-import { StatTile } from "@/features/analysis/components/StatTile";
+import { AnalysisModal } from "@/features/analysis/components/AnalysisModal";
+import { WhyButton } from "@/features/analysis/components/WhyButton";
+import { DoctorsDrawer } from "@/features/doctors/components/DoctorsDrawer";
 import { AddPatientDrawer } from "@/features/patients/components/AddPatientDrawer";
-import { PatientListCard } from "@/features/patients/components/PatientListCard";
 import { GoalCard } from "@/features/scenario/components/GoalCard";
 import { GoalDrawer } from "@/features/scenario/components/GoalDrawer";
 import { StartCard } from "@/features/scenario/components/StartCard";
 import { StartDrawer } from "@/features/scenario/components/StartDrawer";
-import { DoctorsDrawer } from "@/features/doctors/components/DoctorsDrawer";
-import { AnalysisModal } from "@/features/analysis/components/AnalysisModal";
-import { WhyButton } from "@/features/analysis/components/WhyButton";
+import { OrdenCard } from "./components/OrdenCard";
+import { PlanCalculator } from "./components/PlanCalculator";
+import { SummaryPanel } from "./components/SummaryPanel";
 
 export function PlannerPage() {
   return (
     <>
       <AppHeader />
       <main className="grid grid-cols-[1fr_350px] items-start gap-4 px-8 py-6">
-        <PatientListCard />
+        <OrdenCard />
         <aside className="flex flex-col gap-4">
           <StartCard />
           <GoalCard />
-          <PenaltySummary total={null} />
-          <div className="grid grid-cols-2 gap-3">
-            <StatTile label="Fin del turno" value="—" />
-            <StatTile label="Con retraso" value="—" />
-          </div>
+          <SummaryPanel />
           <WhyButton />
         </aside>
       </main>
+      <PlanCalculator />
       <AddPatientDrawer />
       <StartDrawer />
       <GoalDrawer />
