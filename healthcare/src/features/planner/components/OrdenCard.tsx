@@ -67,7 +67,7 @@ export function OrdenCard() {
           value={modo}
           onChange={setOrden}
           options={[
-            { value: "optimo", label: "Orden óptimo (A*)" },
+            { value: "optimo", label: plan.anytime || plan.aproximado !== null ? "Mejor orden (A*)" : "Orden óptimo (A*)" },
             { value: "gravedad", label: "Orden por gravedad" },
           ]}
         />
