@@ -5,8 +5,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CompactStepper } from "@/components/ui/CompactStepper";
 import { Drawer } from "@/components/ui/Drawer";
+import { Switch } from "@/components/ui/Switch";
+import { LevelBadge } from "@/features/patients/components/LevelBadge";
+import { usePatients } from "@/features/patients/store";
 import { useUi } from "@/features/planner/ui-store";
 import { cn } from "@/lib/cn";
+import { NIVELES } from "@/lib/triage";
 import { GOAL_OPTIONS } from "../goal";
 import { useScenario, type Goal } from "../store";
 
@@ -23,14 +27,23 @@ function Field({ label, help, children }: { label: string; help?: string; childr
 function GoalForm({ onDone }: { onDone: () => void }) {
   const saved = useScenario((s) => s.goal);
   const setGoal = useScenario((s) => s.setGoal);
+  const attended = useScenario((s) => s.attended);
+  const patients = usePatients((s) => s.patients);
   const [draft, setDraft] = useState<Goal>(saved);
   const patch = (p: Partial<Goal>) => setDraft((d) => ({ ...d, ...p }));
+
+  const pendientes = patients.filter((p) => !attended.includes(p.id));
+  const elegidos = pendientes.filter((p) => draft.ids.includes(p.id)).map((p) => p.id);
+  const sinElegir = draft.tipo === "subconjunto" && elegidos.length === 0;
+  const toggle = (id: string, on: boolean) =>
+    patch({ ids: on ? [...draft.ids.filter((x) => x !== id), id] : draft.ids.filter((x) => x !== id) });
 
   function apply() {
     setGoal({
       ...draft,
       k: Number.isNaN(draft.k) ? 1 : draft.k,
       t: Number.isNaN(draft.t) ? 1 : draft.t,
+      ids: elegidos,
     });
     onDone();
   }
@@ -84,6 +97,34 @@ function GoalForm({ onDone }: { onDone: () => void }) {
                     <CompactStepper value={draft.t} onChange={(v) => patch({ t: v })} min={1} max={999} step={5} unit="min" aria-label="Minutos disponibles T" />
                   </Field>
                 )}
+
+                {selected && o.tipo === "subconjunto" && (
+                  <Field
+                    label={`Pacientes que deben atenderse (${elegidos.length} de ${pendientes.length})`}
+                    help="Los demás se atienden después, en orden de triage, y su penalización también cuenta."
+                  >
+                    {pendientes.length === 0 ? (
+                      <p className="rounded-[10px] bg-bg px-4 py-3 text-[13px] text-muted">No hay pacientes pendientes.</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {pendientes.map((p) => {
+                          const on = elegidos.includes(p.id);
+                          return (
+                            <li
+                              key={p.id}
+                              className="relative flex items-center gap-3 overflow-hidden rounded-[10px] border border-border bg-surface py-2 pl-4 pr-3"
+                            >
+                              <span className={cn("absolute inset-y-0 left-0 w-1", NIVELES[p.nivel].bar)} />
+                              <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text">{p.nombre}</span>
+                              <LevelBadge nivel={p.nivel} />
+                              <Switch checked={on} onChange={(v) => toggle(p.id, v)} aria-label={`Incluir a ${p.nombre} en la meta`} />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </Field>
+                )}
               </div>
             );
           })}
@@ -94,7 +135,7 @@ function GoalForm({ onDone }: { onDone: () => void }) {
         <Button type="button" variant="ghost" onClick={onDone}>
           Cancelar
         </Button>
-        <Button type="button" onClick={apply}>
+        <Button type="button" onClick={apply} disabled={sinElegir}>
           <Check size={16} />
           Aplicar
         </Button>

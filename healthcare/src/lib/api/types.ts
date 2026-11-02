@@ -57,8 +57,6 @@ export type TraceRowOut = {
   id: number;
   parent: number;
   patient: string | null;
-  attended: string[] | null;
-  freeAt: number[] | null;
   isGoal: boolean;
   g: number;
   h: number;
@@ -105,6 +103,7 @@ export type BaselineOut = {
   order: string[];
   steps: StepOut[];
   leftOut: StepOut[];
+  alerts: AlertOut[];
 };
 
 export type AlertCode = "ALREADY_LATE" | "EXCEEDS_LIMIT" | "NEAR_LIMIT" | "LEFT_OUT" | "LEFT_OUT_CRITICAL";

@@ -1,14 +1,15 @@
 import { create } from "zustand";
 
-export type GoalType = "todos" | "criticos" | "k" | "t";
+export type GoalType = "todos" | "criticos" | "k" | "t" | "subconjunto";
 
 export type Goal = {
   tipo: GoalType;
   k: number;
   t: number;
+  ids: string[];
 };
 
-export const DEFAULT_GOAL: Goal = { tipo: "todos", k: 4, t: 60 };
+export const DEFAULT_GOAL: Goal = { tipo: "todos", k: 4, t: 60, ids: [] };
 
 type ScenarioState = {
   t0: number;

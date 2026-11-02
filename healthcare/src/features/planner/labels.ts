@@ -36,9 +36,12 @@ export function describeComparacion(ucs: AlgorithmResultOut | null, astar: Algor
     return `Costo uniforme no terminó a tiempo (${fmt(intento?.expanded ?? 0)} nodos en ${ms(intento?.ms ?? 0)}).`;
   }
   const base = `Costo uniforme: ${fmt(ucs.expanded)} nodos en ${ms(ucs.ms ?? 0)}`;
-  if (astar?.status === "optimal" && astar.expanded !== null && ucs.expanded > 0) {
+  if (astar?.status === "optimal" && astar.expanded !== null && astar.cost !== null && ucs.expanded > 0) {
+    if (ucs.cost !== astar.cost) {
+      return `${base} · Los costos no coinciden: Costo uniforme ${fmt(ucs.cost ?? 0)} y A* ${fmt(astar.cost)}.`;
+    }
     const ahorro = Math.round(1000 * (1 - astar.expanded / ucs.expanded)) / 10;
-    return `${base} · A* expande ${ahorro} % menos nodos con el mismo costo.`;
+    return `${base} · A* expande ${ahorro} % menos nodos con el mismo costo (${fmt(astar.cost)}).`;
   }
   return `${base}.`;
 }

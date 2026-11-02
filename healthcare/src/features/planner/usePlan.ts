@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePatients } from "@/features/patients/store";
 import { useScenario } from "@/features/scenario/store";
-import { buildPlan, planPorGravedad, stepsFor } from "./solve";
+import { alertsFor, buildPlan, planPorGravedad, stepsFor } from "./solve";
 import { requestKey, useSolve } from "./solve-store";
 import { useUi } from "./ui-store";
 import { useSolveRequest } from "./useAutoSolve";
@@ -24,7 +24,7 @@ export function usePlan() {
   const error = status === "error" && dataKey === key ? solveError : null;
 
   const plan = useMemo(
-    () => (data ? buildPlan(patients, attended, stepsFor(data, modo)) : planPorGravedad(patients, attended)),
+    () => (data ? buildPlan(patients, attended, stepsFor(data, modo), alertsFor(data, modo)) : planPorGravedad(patients, attended)),
     [data, patients, attended, modo],
   );
 

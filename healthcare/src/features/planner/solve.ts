@@ -1,5 +1,5 @@
-import type { GoalIn, SolveRequest, SolveResponse, StepOut } from "@/lib/api/types";
-import type { FilaTabla, Patient } from "@/features/patients/types";
+import type { AlertOut, GoalIn, SolveRequest, SolveResponse, StepOut } from "@/lib/api/types";
+import type { FilaTabla, Nota, Patient } from "@/features/patients/types";
 import { ordenPorGravedad } from "@/features/patients/utils";
 import type { Goal } from "@/features/scenario/store";
 import type { OrdenModo } from "./ui-store";
@@ -21,7 +21,7 @@ export type Plan = {
   pendientes: number;
 };
 
-function toGoal(goal: Goal, pending: number): GoalIn {
+function toGoal(goal: Goal, pending: number, ids: Set<string>): GoalIn {
   switch (goal.tipo) {
     case "criticos":
       return { type: "critical" };
@@ -29,6 +29,10 @@ function toGoal(goal: Goal, pending: number): GoalIn {
       return { type: "k", value: Math.min(Math.max(1, goal.k), pending) };
     case "t":
       return { type: "horizon", value: Math.max(1, goal.t) };
+    case "subconjunto": {
+      const elegidos = goal.ids.filter((id) => ids.has(id));
+      return elegidos.length > 0 ? { type: "subset", value: elegidos } : { type: "all" };
+    }
     default:
       return { type: "all" };
   }
@@ -55,7 +59,7 @@ export function buildSolveRequest(input: ScenarioInput): SolveRequest | null {
       }),
     },
     doctors,
-    goal: toGoal(goal, pending),
+    goal: toGoal(goal, pending, ids),
     algorithms: ["astar"],
   };
 }
@@ -69,19 +73,41 @@ export function stepsFor(response: SolveResponse, modo: OrdenModo): StepOut[] {
   return [...response.baseline.steps, ...response.baseline.leftOut];
 }
 
+export function alertsFor(response: SolveResponse, modo: OrdenModo): AlertOut[] {
+  return modo === "optimo" ? response.alerts : response.baseline.alerts;
+}
+
+function notaDe(alert: AlertOut): Nota | null {
+  switch (alert.code) {
+    case "ALREADY_LATE":
+      return { texto: `Ya rebasaba su límite por ${alert.minutes} min`, critica: false };
+    case "NEAR_LIMIT":
+      return { texto: alert.minutes === 0 ? "Empieza justo en su límite" : `A ${alert.minutes} min de su límite`, critica: false };
+    case "LEFT_OUT_CRITICAL":
+      return { texto: "Crítico que queda fuera de la meta", critica: true };
+    default:
+      return null;
+  }
+}
+
 function atendidosPrimero(patients: Patient[], attended: string[]): FilaTabla[] {
   const done = new Set(attended);
   return patients
     .filter((p) => done.has(p.id))
-    .map((patient) => ({ patient, inicia: null, sobre: null, penal: null, medico: null, estado: "atendido" }));
+    .map((patient) => ({ patient, inicia: null, termina: null, sobre: null, penal: null, medico: null, estado: "atendido", notas: [] }));
 }
 
 function sinPlan(patient: Patient): FilaTabla {
-  return { patient, inicia: null, sobre: null, penal: null, medico: null, estado: "sin_plan" };
+  return { patient, inicia: null, termina: null, sobre: null, penal: null, medico: null, estado: "sin_plan", notas: [] };
 }
 
-export function buildPlan(patients: Patient[], attended: string[], steps: StepOut[]): Plan {
+export function buildPlan(patients: Patient[], attended: string[], steps: StepOut[], alerts: AlertOut[] = []): Plan {
   const done = new Set(attended);
+  const notas = new Map<string, Nota[]>();
+  for (const alert of alerts) {
+    const nota = notaDe(alert);
+    if (nota) notas.set(alert.patient, [...(notas.get(alert.patient) ?? []), nota]);
+  }
   const byId = new Map(patients.map((p) => [p.id, p]));
   const filas = atendidosPrimero(patients, attended);
   const placed = new Set<string>();
@@ -98,10 +124,12 @@ export function buildPlan(patients: Patient[], attended: string[], steps: StepOu
     filas.push({
       patient,
       inicia: step.start,
+      termina: step.end,
       sobre: step.delay,
       penal: step.penalty,
       medico: step.doctor,
       estado: step.afterGoal ? "fuera_meta" : step.delay > 0 ? "retraso" : "a_tiempo",
+      notas: notas.get(patient.id) ?? [],
     });
   }
   for (const patient of patients) {

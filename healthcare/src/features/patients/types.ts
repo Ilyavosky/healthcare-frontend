@@ -12,11 +12,15 @@ export type NewPatient = Omit<Patient, "id">;
 
 export type Estado = "atendido" | "a_tiempo" | "retraso" | "fuera_meta" | "sin_plan";
 
+export type Nota = { texto: string; critica: boolean };
+
 export type FilaTabla = {
   patient: Patient;
   inicia: number | null;
+  termina: number | null;
   sobre: number | null;
   penal: number | null;
   medico: number | null;
   estado: Estado;
+  notas: Nota[];
 };

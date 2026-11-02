@@ -15,9 +15,6 @@ export type ParseResult = {
   rows: ParsedRow[];
 };
 
-export const PLANTILLA_CSV =
-  "id,nombre,nivel,espera,duracion\nP1,Ana R.,2,5,18\nP2,Luis M.,3,13,18\nP3,María L.,1,3,30\n";
-
 const quitarAcentos = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const norm = (v: unknown) => quitarAcentos(String(v ?? "")).trim().toLowerCase();
 

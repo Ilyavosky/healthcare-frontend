@@ -1,20 +1,11 @@
 "use client";
 
-import { Download, FileSpreadsheet, TriangleAlert, Upload } from "lucide-react";
+import { FileSpreadsheet, TriangleAlert, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { usePatients } from "@/features/patients/store";
-import { parseFile, PLANTILLA_CSV, type ParseResult } from "../parse";
+import { parseFile, type ParseResult } from "../parse";
 import { Dropzone } from "./Dropzone";
-
-function descargarPlantilla() {
-  const url = URL.createObjectURL(new Blob([PLANTILLA_CSV], { type: "text/csv;charset=utf-8" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "plantilla_pacientes.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 export function ExcelImport({ onDone }: { onDone: () => void }) {
   const addMany = usePatients((s) => s.addMany);

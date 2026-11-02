@@ -8,7 +8,7 @@ import type { Estado, FilaTabla } from "../types";
 import { LevelBadge } from "./LevelBadge";
 
 const COLS =
-  "grid grid-cols-[40px_minmax(140px,1fr)_100px_90px_100px_90px_100px_118px_118px_140px] items-center gap-3";
+  "grid grid-cols-[40px_minmax(140px,1fr)_90px_80px_84px_64px_86px_86px_104px_104px_150px] items-center gap-3";
 
 const dash = <span className="text-subtle">—</span>;
 
@@ -48,7 +48,7 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
 
   return (
     <div className="overflow-x-auto px-5 pb-2 pt-4">
-      <div className="min-w-[1180px]">
+      <div className="min-w-[1240px]">
         <div className={cn(COLS, "px-3 pb-2 text-xs text-muted")}>
           <span>#</span>
           <span>Paciente</span>
@@ -57,12 +57,13 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
           <span>Consulta</span>
           <span>Médico</span>
           <span>Inicia en</span>
+          <span>Termina en</span>
           <span>Sobre límite</span>
           <span>Penalización</span>
           <span>Estado</span>
         </div>
         <ul className="space-y-2">
-          {filas.map(({ patient: p, inicia, sobre, penal, medico, estado }, i) => (
+          {filas.map(({ patient: p, inicia, termina, sobre, penal, medico, estado, notas }, i) => (
             <li
               key={p.id}
               ref={(el) => {
@@ -85,13 +86,14 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
               <span className="text-[13px] text-muted">{p.duracion} min</span>
               <span className="text-[13px] text-text tabular-nums">{medico === null ? dash : medico}</span>
               <span className="text-[13px] text-text tabular-nums">{inicia === null ? dash : `Min ${fmt(inicia)}`}</span>
+              <span className="text-[13px] text-text tabular-nums">{termina === null ? dash : `Min ${fmt(termina)}`}</span>
               <span className={cn("text-[13px] tabular-nums", sobre ? "text-text" : "text-muted")}>
                 {sobre === null ? dash : `${fmt(sobre)} min`}
               </span>
               <span className={cn("text-[13px] font-semibold tabular-nums", penal ? "text-navy" : "text-muted")}>
                 {penal === null ? dash : fmt(penal)}
               </span>
-              <span>
+              <span className="flex flex-col items-start gap-1">
                 {estado === "sin_plan" ? (
                   dash
                 ) : (
@@ -99,6 +101,11 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
                     {ESTADO[estado].texto}
                   </span>
                 )}
+                {notas.map((nota) => (
+                  <span key={nota.texto} className={cn("text-[11px] leading-tight", nota.critica ? "font-semibold text-n1" : "text-muted")}>
+                    {nota.texto}
+                  </span>
+                ))}
               </span>
             </li>
           ))}
