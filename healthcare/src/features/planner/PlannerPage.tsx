@@ -8,6 +8,7 @@ import { GoalCard } from "@/features/scenario/components/GoalCard";
 import { GoalDrawer } from "@/features/scenario/components/GoalDrawer";
 import { StartCard } from "@/features/scenario/components/StartCard";
 import { StartDrawer } from "@/features/scenario/components/StartDrawer";
+import { DoctorsDrawer } from "@/features/doctors/components/DoctorsDrawer";
 
 export function PlannerPage() {
   return (
@@ -28,9 +29,10 @@ export function PlannerPage() {
           </Button>
         </aside>
       </main>
-      <AddPatientDrawer />
-      <StartDrawer />
-      <GoalDrawer />
+            <AddPatientDrawer />
+            <StartDrawer />
+            <GoalDrawer />
+            <DoctorsDrawer />
     </>
   );
 }

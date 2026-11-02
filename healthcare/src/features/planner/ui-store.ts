@@ -10,6 +10,8 @@ type UiState = {
   setStartDrawer: (open: boolean) => void;
   goalDrawer: boolean;
   setGoalDrawer: (open: boolean) => void;
+  doctorsDrawer: boolean;
+  setDoctorsDrawer: (open: boolean) => void;
 };
 
 export const useUi = create<UiState>((set) => ({
@@ -20,4 +22,6 @@ export const useUi = create<UiState>((set) => ({
   setStartDrawer: (open) => set({ startDrawer: open }),
   goalDrawer: false,
   setGoalDrawer: (open) => set({ goalDrawer: open }),
+  doctorsDrawer: false,
+  setDoctorsDrawer: (open) => set({ doctorsDrawer: open }),
 }));

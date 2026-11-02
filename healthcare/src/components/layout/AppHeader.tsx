@@ -2,12 +2,24 @@
 
 import { HeartPulse, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useDoctors } from "@/features/doctors/store";
 import { usePatients } from "@/features/patients/store";
+import { useScenario } from "@/features/scenario/store";
 import { useUi } from "@/features/planner/ui-store";
 
 export function AppHeader() {
-  const reset = usePatients((s) => s.reset);
+  const resetPatients = usePatients((s) => s.reset);
+  const resetScenario = useScenario((s) => s.reset);
+  const resetDoctors = useDoctors((s) => s.reset);
   const openAdd = useUi((s) => s.openAdd);
+  const setDoctorsDrawer = useUi((s) => s.setDoctorsDrawer);
+
+  const reset = () => {
+    resetPatients();
+    resetScenario();
+    resetDoctors();
+  };
+
   return (
     <header className="flex h-[64px] items-center gap-3 border-b border-border bg-surface px-8">
       <div className="flex size-10 items-center justify-center rounded-full bg-navy text-white">
@@ -26,7 +38,7 @@ export function AppHeader() {
           <Plus size={16} />
           Agregar pacientes
         </Button>
-        <Button onClick={() => openAdd("individual")}>
+        <Button onClick={() => setDoctorsDrawer(true)}>
           <Plus size={16} />
           Agregar doctores
         </Button>

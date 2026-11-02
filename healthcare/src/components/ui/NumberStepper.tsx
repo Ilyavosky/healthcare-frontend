@@ -12,7 +12,7 @@ type Props = {
   "aria-label"?: string;
 };
 
-export function NumberStepper({ value, onChange, min = 0, max = 999, step = 1, unit, ...rest }: Props) {
+export function NumberStepper({ value, onChange, min = 0, max = Infinity, step = 1, unit, ...rest }: Props) {
   const clamp = (n: number) => Math.min(max, Math.max(min, n));
   const btn = "flex h-full w-10 cursor-pointer items-center justify-center text-navy hover:bg-[#F1F2F4]";
 
@@ -26,7 +26,7 @@ export function NumberStepper({ value, onChange, min = 0, max = 999, step = 1, u
           type="number"
           value={Number.isNaN(value) ? "" : value}
           min={min}
-          max={max}
+          max={Number.isFinite(max) ? max : undefined}
           aria-label={rest["aria-label"]}
           onChange={(e) => onChange(e.target.value === "" ? NaN : clamp(Number(e.target.value)))}
           className="w-12 bg-transparent text-center text-[15px] font-semibold text-navy outline-none"
