@@ -1,9 +1,11 @@
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/Button";
-import { PenaltySummary } from "@/features/analysis/components/PenaltySummary";
-import { StatTile } from "@/features/analysis/components/StatTile";
+import { AnalysisPanel } from "@/features/analysis/components/AnalysisPanel";
 import { AddPatientDrawer } from "@/features/patients/components/AddPatientDrawer";
 import { PatientListCard } from "@/features/patients/components/PatientListCard";
+import { PlannerSync } from "@/features/planner/components/PlannerSync";
+import { DoctorsCard } from "@/features/scenario/components/DoctorsCard";
+import { DoctorsDrawer } from "@/features/scenario/components/DoctorsDrawer";
 import { GoalCard } from "@/features/scenario/components/GoalCard";
 import { GoalDrawer } from "@/features/scenario/components/GoalDrawer";
 import { StartCard } from "@/features/scenario/components/StartCard";
@@ -17,12 +19,9 @@ export function PlannerPage() {
         <PatientListCard />
         <aside className="flex flex-col gap-4">
           <StartCard />
+          <DoctorsCard />
           <GoalCard />
-          <PenaltySummary total={null} />
-          <div className="grid grid-cols-2 gap-3">
-            <StatTile label="Fin del turno" value="—" />
-            <StatTile label="Con retraso" value="—" />
-          </div>
+          <AnalysisPanel />
           <Button variant="block" className="py-[15px]">
             ¿Por qué este orden es el mejor?
           </Button>
@@ -30,7 +29,9 @@ export function PlannerPage() {
       </main>
       <AddPatientDrawer />
       <StartDrawer />
+      <DoctorsDrawer />
       <GoalDrawer />
+      <PlannerSync />
     </>
   );
-}
+}

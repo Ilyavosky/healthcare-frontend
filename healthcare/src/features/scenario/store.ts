@@ -14,6 +14,9 @@ type ScenarioState = {
   t0: number;
   attended: string[];
   setStart: (t0: number, attended: string[]) => void;
+  doctors: number;
+  doctorsFreeAt: number[] | null;
+  setDoctors: (doctors: number, freeAt: number[] | null) => void;
   goal: Goal;
   setGoal: (goal: Goal) => void;
   reset: () => void;
@@ -23,7 +26,10 @@ export const useScenario = create<ScenarioState>((set) => ({
   t0: 0,
   attended: [],
   setStart: (t0, attended) => set({ t0, attended }),
+  doctors: 1,
+  doctorsFreeAt: null,
+  setDoctors: (doctors, doctorsFreeAt) => set({ doctors, doctorsFreeAt }),
   goal: DEFAULT_GOAL,
   setGoal: (goal) => set({ goal }),
-  reset: () => set({ t0: 0, attended: [], goal: DEFAULT_GOAL }),
+  reset: () => set({ t0: 0, attended: [], doctors: 1, doctorsFreeAt: null, goal: DEFAULT_GOAL }),
 }));

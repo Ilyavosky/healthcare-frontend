@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn";
 import { NIVELES } from "@/lib/triage";
-import type { PlannedPatient } from "../types";
+import type { Estado, PlannedPatient } from "../types";
 import { LevelBadge } from "./LevelBadge";
 
 const COLS =
@@ -10,6 +10,24 @@ const HEADERS = ["#", "Paciente", "Nivel", "Espera", "Consulta", "Inicia en", "S
 
 function Dash() {
   return <span className="text-subtle">—</span>;
+}
+
+const ESTADOS: Record<Estado, { label: string; className: string }> = {
+  "a-tiempo": { label: "A tiempo", className: "text-ok" },
+  retraso: { label: "Con retraso", className: "text-n1" },
+  "fuera-meta": { label: "Fuera de la meta", className: "text-muted" },
+  atendido: { label: "Atendido", className: "text-ok" },
+};
+
+function Status({ estado, medico }: { estado?: Estado; medico?: number }) {
+  if (!estado) return <Dash />;
+  const { label, className } = ESTADOS[estado];
+  return (
+    <span className="flex flex-col leading-tight">
+      <span className={cn("font-medium", className)}>{label}</span>
+      {medico !== undefined && <span className="text-[11px] text-muted">Médico {medico}</span>}
+    </span>
+  );
 }
 
 function Min({ value, className }: { value?: number; className?: string }) {
@@ -42,18 +60,18 @@ export function PatientTable({ patients }: { patients: PlannedPatient[] }) {
             <span className="text-[13px] font-semibold text-text">
               <Min value={p.inicia} />
             </span>
-            <span className="text-[13px] font-medium text-n1">
+            <span className={cn("text-[13px] font-medium", p.sobreLimite ? "text-n1" : "text-muted")}>
               <Min value={p.sobreLimite} />
             </span>
             <span className="text-sm font-bold text-text">
               {p.penalizacion === undefined ? <Dash /> : p.penalizacion}
             </span>
             <span className="text-xs">
-              <Dash />
+              <Status estado={p.estado} medico={p.medico} />
             </span>
           </li>
         ))}
       </ul>
     </div>
   );
-}
+}
