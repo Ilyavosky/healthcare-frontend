@@ -23,8 +23,8 @@ export function AddPatientForm({ onDone }: { onDone: () => void }) {
     const e: Errors = {};
     if (nombre.trim().length < 2) e.nombre = "Escribe el nombre del paciente.";
     if (!nivel) e.nivel = "Elige un nivel de triage.";
-    if (Number.isNaN(espera) || espera < 0) e.espera = "Debe ser 0 o más.";
-    if (Number.isNaN(duracion) || duracion < 1) e.duracion = "Debe ser de 1 min o más.";
+    if (!Number.isInteger(espera) || espera < 0) e.espera = "Debe ser un entero de 0 o más.";
+    if (!Number.isInteger(duracion) || duracion < 1) e.duracion = "Debe ser un entero de 1 min o más.";
     return e;
   }
 
