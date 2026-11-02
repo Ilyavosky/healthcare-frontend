@@ -48,7 +48,7 @@ export function PatientTable({ filas }: { filas: FilaTabla[] }) {
 
   return (
     <div className="overflow-x-auto px-5 pb-2 pt-4">
-      <div className="min-w-[1100px]">
+      <div className="min-w-[1180px]">
         <div className={cn(COLS, "px-3 pb-2 text-xs text-muted")}>
           <span>#</span>
           <span>Paciente</span>
