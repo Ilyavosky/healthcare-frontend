@@ -16,7 +16,7 @@ export function PlannerPage() {
   return (
     <>
       <AppHeader />
-      <main className="grid grid-cols-[1fr_350px] items-start gap-4 px-8 py-6">
+      <main className="grid grid-cols-[minmax(0,1fr)_350px] items-start gap-4 px-8 py-6">
         <OrdenCard />
         <aside className="flex flex-col gap-4">
           <StartCard />
