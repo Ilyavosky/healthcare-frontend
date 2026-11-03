@@ -60,7 +60,3 @@ Para revisar el código: `npm run lint`.
 5. La tabla muestra la agenda: médico, inicio, fin, minutos sobre el límite, penalización y alertas. Arriba se puede cambiar entre el orden de A* y el orden por gravedad.
 6. **¿Por qué este orden es el mejor?** abre la animación del grafo de búsqueda de A*, paso a paso.
 7. **Reiniciar** borra el escenario.
-
-## Despliegue en Vercel
-
-Importa el repositorio en Vercel con `healthcare` como *Root Directory* y agrega `NEXT_PUBLIC_API_URL` con la URL del backend en *Environment Variables*.
