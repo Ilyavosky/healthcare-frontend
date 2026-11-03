@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type AddTab = "individual" | "excel";
+export type AddTab = "individual" | "excel" | "aleatorio";
 export type OrdenModo = "optimo" | "gravedad";
 
 type UiState = {

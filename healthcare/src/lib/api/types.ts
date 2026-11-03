@@ -14,6 +14,16 @@ export type PatientIn = {
   duration: number;
 };
 
+export type GenerateRequest = {
+  n: number;
+  seed?: number;
+};
+
+export type GenerateResponse = {
+  seed: number;
+  patients: PatientIn[];
+};
+
 export type StartIn = {
   t0: number;
   attended: string[];

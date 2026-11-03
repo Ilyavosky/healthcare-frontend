@@ -52,7 +52,7 @@ function validarFilas(matrix: unknown[][]): ParsedRow[] {
   };
   const faltan = (Object.keys(idx) as (keyof typeof idx)[]).filter((k) => idx[k] === -1);
   if (faltan.length > 0) {
-    throw new Error(`Faltan columnas: ${faltan.join(", ")}. Descarga la plantilla para ver el formato.`);
+    throw new Error(`Faltan columnas: ${faltan.join(", ")}. Las columnas deben llamarse nombre, nivel, espera y duración.`);
   }
 
   const rows: ParsedRow[] = [];

@@ -7,6 +7,7 @@ type PatientsState = {
   addPatient: (p: NewPatient) => void;
   addMany: (list: NewPatient[]) => void;
   removePatient: (id: string) => void;
+  replace: (list: Patient[]) => void;
   reset: () => void;
 };
 
@@ -28,5 +29,10 @@ export const usePatients = create<PatientsState>((set) => ({
     })),
   removePatient: (id) =>
     set((s) => ({ patients: s.patients.filter((p) => p.id !== id) })),
+  replace: (list) =>
+    set({
+      patients: list,
+      nextId: list.reduce((max, p) => Math.max(max, Number(p.id.slice(1)) || 0), 0) + 1,
+    }),
   reset: () => set({ patients: [], nextId: 1 }),
 }));

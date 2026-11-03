@@ -1,6 +1,6 @@
 "use client";
 
-import { HeartPlus, Plus, Upload } from "lucide-react";
+import { Dices, HeartPlus, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useUi } from "@/features/planner/ui-store";
 
@@ -13,7 +13,7 @@ export function EmptyPatients() {
       </div>
       <h3 className="mt-3 text-xl font-semibold text-navy">Aún no hay pacientes en espera</h3>
       <p className="mt-2 text-sm text-muted">
-        Agrega pacientes uno por uno, carga un archivo de Excel
+        Agrega pacientes uno por uno, carga un archivo de Excel o genera un escenario aleatorio
       </p>
       <div className="mt-[14px] flex gap-2.5">
         <Button onClick={() => openAdd("individual")}>
@@ -23,6 +23,10 @@ export function EmptyPatients() {
         <Button variant="outline" onClick={() => openAdd("excel")}>
           <Upload size={16} />
           Cargar Excel
+        </Button>
+        <Button variant="outline" onClick={() => openAdd("aleatorio")}>
+          <Dices size={16} />
+          Generar aleatorio
         </Button>
       </div>
     </div>

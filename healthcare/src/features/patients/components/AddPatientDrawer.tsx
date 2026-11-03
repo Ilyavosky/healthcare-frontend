@@ -5,6 +5,7 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useUi, type AddTab } from "@/features/planner/ui-store";
 import { AddPatientForm } from "./AddPatientForm";
 import { ExcelImport } from "@/features/import/components/ExcelImport";
+import { RandomScenario } from "@/features/random/components/RandomScenario";
 
 export function AddPatientDrawer() {
   const tab = useUi((s) => s.addDrawer);
@@ -27,12 +28,15 @@ export function AddPatientDrawer() {
             options={[
               { value: "individual", label: "Individual" },
               { value: "excel", label: "Excel / CSV" },
+              { value: "aleatorio", label: "Aleatorio" },
             ]}
           />
         </div>
 
         {tab === "excel" ? (
         <ExcelImport onDone={closeAdd} />
+        ) : tab === "aleatorio" ? (
+        <RandomScenario onDone={closeAdd} />
         ) : (
         <AddPatientForm key="form" onDone={closeAdd} />
         )}
