@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# healthcare-frontend
 
-## Getting Started
+Interfaz del proyecto **Healthcare: Priorización de Urgencias Médicas**. Permite capturar la sala de urgencias, ver la agenda que calcula el backend y animar la búsqueda de A*.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 20.9 o superior.
+- El backend [`healthcare-backend`](https://github.com/Ilyavosky/healthcare-backend) en ejecución, local o desplegado.
+
+## Instalación
+
+```bash
+git clone https://github.com/Ilyavosky/healthcare-frontend.git
+cd healthcare-frontend/healthcare
+npm install
+```
+
+## Configuración
+
+Copia la plantilla y edita la dirección del backend:
+
+```bash
+cp .env.example .env.local
+```
+
+En Windows (PowerShell): `Copy-Item .env.example .env.local`.
+
+| Variable | Valor de ejemplo | Para qué |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Dirección del backend. Para usar el desplegado, pon su URL de Railway. |
+
+El backend debe tener la dirección de este frontend en su `ALLOWED_ORIGIN` (por defecto ya incluye `http://localhost:3000`). Si cambias `.env.local`, reinicia el servidor.
+
+## Ejecutar
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para la versión de producción:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+Para revisar el código: `npm run lint`.
 
-To learn more about Next.js, take a look at the following resources:
+## Uso
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Agregar pacientes** de una de tres formas:
+   - *Individual:* nombre, nivel de triage (1 a 5), minutos que ya lleva esperando y duración de su consulta.
+   - *Excel / CSV:* un archivo `.xlsx` o `.csv` con las columnas `nombre`, `nivel`, `espera` y `duracion`. El nivel puede escribirse como `2` o `N2`.
+   - *Aleatorio:* número de pacientes, de médicos y una semilla opcional; también puede sortear el inicio y la meta. Con la misma semilla y las mismas opciones se obtiene el mismo escenario.
+2. **Configurar inicio:** minuto actual del turno y pacientes que ya fueron atendidos.
+3. **Configurar médicos:** cuántos hay y, si se desea, el minuto en que se libera cada uno.
+4. **Cambiar meta:** todos, solo críticos (N1–N2), próximos K pacientes, por tiempo (T minutos) o pacientes específicos.
+5. La tabla muestra la agenda: médico, inicio, fin, minutos sobre el límite, penalización y alertas. Arriba se puede cambiar entre el orden de A* y el orden por gravedad.
+6. **¿Por qué este orden es el mejor?** abre la animación del grafo de búsqueda de A*, paso a paso.
+7. **Reiniciar** borra el escenario.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Despliegue en Vercel
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Importa el repositorio en Vercel con `healthcare` como *Root Directory* y agrega `NEXT_PUBLIC_API_URL` con la URL del backend en *Environment Variables*.
